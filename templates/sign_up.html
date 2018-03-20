@@ -7,7 +7,9 @@
 </head>
 <style>
     /* mirror the image */
-    video, canvas {
+
+    video,
+    canvas {
         transform: scale(-1, 1);
         /*For Firefox (& IE) */
         -webkit-transform: scale(-1, 1);
@@ -21,7 +23,7 @@
     <script>
 
         let v = document.getElementById("myVideo");
-        
+
         //create a canvas to grab an image for upload
         let imageCanvas = document.createElement('canvas');
         let imageCtx = imageCanvas.getContext("2d");
