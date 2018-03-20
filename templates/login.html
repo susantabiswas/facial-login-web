@@ -2,6 +2,8 @@
 <html>
 
 <head>
+    <!-- Favicon-->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png' )}}">
     <title>faceit :: Login</title>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 </head>
@@ -16,12 +18,14 @@
 </style>
 
 <body>
-    <video id="myVideo" width="680" height="480" autoplay></video>
-
+    <video id="myVideo" width=100% height="auto" autoplay></video>
+    <button id="button" style="vertical-align:middle">
+        <span>Face log in</span>
+    </button>
     <script>
 
         let v = document.getElementById("myVideo");
-        
+        let b = document.getElementById("button");
         //create a canvas to grab an image for upload
         let imageCanvas = document.createElement('canvas');
         let imageCtx = imageCanvas.getContext("2d");
@@ -59,7 +63,12 @@
             console.log('click');
             sendImagefromCanvas();
         };
-
+        
+        //Take a picture on click
+        b.onclick = function () {
+            console.log('click');
+            sendImagefromCanvas();
+        };
         window.onload = function () {
 
             //Get camera video

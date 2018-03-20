@@ -170,7 +170,7 @@ def predict():
 				data['identity'] = 'NaN'
 				data['face_present'] = False
 				data['registered'] = False
-
+				print('No subject detected !')
 			# indicate that the request was a success
 			data["success"] = True
 
