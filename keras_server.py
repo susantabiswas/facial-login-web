@@ -21,12 +21,12 @@ import flask
 from flask import request, url_for, Response
 import requests
 import io
-import time
-# initialize the Flask application
+
+# initialize the Flask application and other variables
 app = flask.Flask(__name__)
 model = None
 user_db = None
-PATH_TO_TEST_IMAGES_DIR = './images'
+IMAGE_SAVE_PATH = './images'
 
 
 # for detecting the face boundary
@@ -46,6 +46,8 @@ def triplet_loss(y_true, y_pred, alpha = 0.2):
     return loss
 
 # for checking whether a face is there in image or not
+# returns true if a face is found and also saves a cropped bounded face picture 
+# otherwise returns false
 def face_present(image_path):
 	img = cv2.imread(image_path, -1)
 	save_loc = 'saved_image/new.jpg'
@@ -70,9 +72,9 @@ def face_present(image_path):
 		# Just for visualization purpose
 		# draw a rectangle bounding the face and save it
 		roi = img[y-90:y+h+70, x-50:x+w+50]
-		cv2.rectangle(roi, (x-10, y-70),
+		cv2.rectangle(img, (x-10, y-70),
                     (x+w+20, y+h+40), (15, 175, 61), 4)
-		cv2.imwrite('saved_image/bounded.jpg', roi)
+		cv2.imwrite('saved_image/bounded.jpg', img)
 	return face_present
 
 # for loading the facenet trained model 
@@ -94,6 +96,7 @@ def ini_user_database():
 		user_db = {}
 	return user_db
 
+
 # for checking if the given input face is of a registered user or not
 def face_recognition(encoding, database, model, threshold=0.6):
     min_dist = 99999
@@ -114,54 +117,33 @@ def face_recognition(encoding, database, model, threshold=0.6):
 
     return min_dist, identity
 
-
+# index page
 @app.route('/')
 def index():
 	return flask.render_template("index.html") 
 
-
-""" @app.route('/')
-def index():
-    return Response(open('./static/getImage.html').read(), mimetype="text/html")  """
-
-# save the image as a picture
-
-
-@app.route('/image', methods=['POST'])
-def image():
-	i = request.files['image']  # get the image
-	f = ('%s.jpeg' % time.strftime("%Y%m%d-%H%M%S"))
-	i.save('%s/%s' % (PATH_TO_TEST_IMAGES_DIR, f))
-
-	data = {"success": True}
-	data['identity'] = 'person1'
-	return flask.jsonify(data)
-	
-
+# login page
 @app.route('/login')
 def login():
 	return flask.render_template("login.html")
 
-@app.route("/predict", methods=["POST","GET"])
+# predict function 
+@app.route("/predict", methods=["POST"])
 def predict():
-	# initialize the data dictionary that will be returned from the
-	# view
+	# this will contain the 
 	data = {"success": False}
 
 	# ensure an image was properly uploaded to our endpoint
 	if flask.request.method == "POST":
 		if flask.request.files.get("image"):
-    			
-			""" i = request.files['image']  # get the image
-			f = ('%s.jpeg' % time.strftime("%Y%m%d-%H%M%S"))
-			i.save('%s/%s' % (PATH_TO_TEST_IMAGES_DIR, f)) """
+    		
 			# read the image in PIL format
 			image = flask.request.files["image"].read()
 			image = np.array(Image.open(io.BytesIO(image)))
-			print('inside')
+			
 			# save the image on server side
 			cv2.imwrite('saved_image/new.jpg', cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
-			#data['image'] = cv2.imread('saved_image/new.jpg', -1)
+			
 			# CHECK FOR FACE IN THE IMAGE
 			valid_face = False
 			valid_face = face_present('saved_image/new.jpg')
@@ -176,11 +158,13 @@ def predict():
 				data["min_dist"] = str(min_dist)
 				data['identity'] = identity
 				data['face_present'] = True
+				data['registered'] = True
 			else:
         		# save the output for sending as json
 				data["min_dist"] = 'NaN'
 				data['identity'] = 'NaN'
 				data['face_present'] = False
+				data['registered'] = False
 
 			# indicate that the request was a success
 			data["success"] = True
@@ -196,4 +180,4 @@ if __name__ == "__main__":
 	print('Model loaded..............')
 	ini_user_database()
 	print('Database loaded...........')
-	app.run()
+	app.run(host='localhost', port=5000)
