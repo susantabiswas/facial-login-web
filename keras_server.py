@@ -127,6 +127,11 @@ def index():
 def login():
 	return flask.render_template("login.html")
 
+# Sign up
+@app.route('/sign_up')
+def sign_up():
+	return flask.render_template("sign_up.html")
+
 # predict function 
 @app.route("/predict", methods=["POST"])
 def predict():
