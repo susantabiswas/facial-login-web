@@ -54,10 +54,11 @@ body {
 /* 02. FONT FACE ============================================ */
 
 @font-face {
+	
     font-family: 'norwester';
-	src: url('../fonts/norwester/norwester.eot');
-    src: url('../fonts/norwester/norwester.eot?iefix') format('embedded-opentype'),
-		 url('../fonts/norwester/norwester.ttf');
+	src: url("{{ url_for('static, filename='../fonts/norwester/norwester.eot') }}" );
+    src: url("{{ url_for('static, filename='../fonts/norwester/norwester.eot?iefix') }}" ) format('embedded-opentype'),
+		 url("{{ url_for('static, filename='../fonts/norwester/norwester.ttf') }}" );
     font-weight: normal;
 }
 
