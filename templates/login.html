@@ -8,6 +8,8 @@
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.css') }}">
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    
     <style type="text/css">
         #banner {
             height: 40%;
@@ -87,8 +89,8 @@
         </div>
         
         <div id="form_input" >
-            <form>
-                <div class="form-group">
+            <form id = "login-detail" >
+                <div class="form-group" action="#">
                     <label for="email_address">Email address </label>
                     <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" required>
                     <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
@@ -97,8 +99,7 @@
                     <label for="password">Password</label>
                     <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
-               
+                <input type="submit" class="btn btn-primary" id="submit" value="submit">
             </form>
         </div>
 
@@ -106,7 +107,14 @@
     
 
     <script>
-        
+         $(document).ready(function(){ 
+                $('#submit').click(function(){
+                //store the user's entry in a variable
+                var name = $('#exampleInputEmail1').val();
+                alert(name);
+                });
+            });
+           
         let v = document.getElementById("myVideo");
 
         //create a canvas to grab an image for upload
@@ -116,7 +124,10 @@
         //Add file blob to a form and post
         function postFile(file) {
             let formdata = new FormData();
-            var values= $('form_input').serialize()
+            
+            
+            var values= $('#login-detail').serialize()
+            console.log(values);
             formdata.append("image", file);
             formdata.append('form_val',values);
 
