@@ -99,6 +99,7 @@ def ini_user_database():
     return user_db
 
 
+
 # for checking if the given input face is of a registered user or not
 def face_recognition(encoding, database, model, threshold=0.6):
     min_dist = 99999
@@ -133,6 +134,57 @@ def login():
 @app.route('/sign_up')
 def sign_up():
     return flask.render_template("sign_up.html")
+
+
+# for verifying user
+@app.route("/authenticate_user", methods=["POST"])
+def authenticate_user():
+    pass
+
+# for regsitering a new user
+@app.route("/add_user", methods=["POST"])
+def add_user():
+    data = {"success":False}
+
+    # ensure an image was properly uploaded to our endpoint
+    if flask.request.method == "POST":
+        if flask.request.files.get("image"):
+            # read the image in PIL format
+            image = flask.request.files["image"].read()
+            image = np.array(Image.open(io.BytesIO(image)))
+
+            # save the image on server side
+            cv2.imwrite('saved_image/new.jpg',
+                        cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+
+            # CHECK FOR FACE IN THE IMAGE
+            valid_face = False
+            valid_face = face_present('saved_image/new.jpg')
+            # add user only if there is a face inside the picture
+            if valid_face:
+                # find image encoding 
+                encoding = img_to_encoding('saved_image/new.jpg', model)
+                print()
+
+                # save the output for sending as json
+                data['face_present'] = True
+                data['registered'] = True
+
+            else:
+                # save the output for sending as json
+                data['face_present'] = False
+                data['registered'] = False
+                print('No subject detected !')
+
+            # indicate that the request was a success
+            data["success"] = True
+
+        if flask.request.files.get("form"):
+            form = flask.request.files["form"].read()
+            print(form)
+    # return the data dictionary as a JSON response
+    return flask.jsonify(data)
+
 
 # predict function 
 @app.route("/predict", methods=["POST"])
@@ -177,6 +229,10 @@ def predict():
             
             # indicate that the request was a success
             data["success"] = True
+
+        if flask.request.files.get("form_val"):
+            form = flask.request.files["form_val"].read()
+            print(form)
 
     # return the data dictionary as a JSON response
     return flask.jsonify(data)
