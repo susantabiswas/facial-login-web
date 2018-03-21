@@ -37,10 +37,18 @@
             let xhr = new XMLHttpRequest();
             xhr.open('POST', 'http://localhost:5000/predict', true);
             xhr.onload = function () {
-                if (this.status === 200)
+                if (this.status === 200){
                     console.log(this.response);
-                else
+                    //console.log(typeof this.response)
+                    //console.log(this.response.length);
+                    //console.log(this.response[0]['face_present']);
+                    //console.log(this.response["identity"]);
+                    //console.log(this.response['registered']);
+                    //console.log(this.response['min_dist']);
+                }
+                else{
                     console.error(xhr);
+                }
             };
             xhr.send(formdata);
         }

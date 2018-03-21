@@ -164,6 +164,8 @@ def predict():
 				data['identity'] = identity
 				data['face_present'] = True
 				data['registered'] = True
+
+				
 			else:
         		# save the output for sending as json
 				data["min_dist"] = 'NaN'
