@@ -22,6 +22,10 @@
     <button id="button" style="vertical-align:middle">
         <span>Face log in</span>
     </button>
+
+    <div id = "bounded">
+        <img src = "{{ url_for('static', filename = 'saved_images/bounded.jpg') }}">
+    </div>
     <script>
 
         let v = document.getElementById("myVideo");
@@ -38,19 +42,23 @@
             xhr.open('POST', 'http://localhost:5000/predict', true);
             xhr.onload = function () {
                 if (this.status === 200){
+                    var data = JSON.parse(this.responseText);
+                    
                     console.log(this.response);
-                    //console.log(typeof this.response)
-                    //console.log(this.response.length);
-                    //console.log(this.response[0]['face_present']);
-                    //console.log(this.response["identity"]);
-                    //console.log(this.response['registered']);
-                    //console.log(this.response['min_dist']);
-                }
+                    console.log('Printing json')
+                    console.log(data['face_present']);
+                    console.log(data["identity"]);
+                    console.log(data['registered']);
+                    console.log(data['min_dist']);
+                    
+                 }
                 else{
                     console.error(xhr);
                 }
             };
+            
             xhr.send(formdata);
+    
         }
 
         //Get the image from the canvas

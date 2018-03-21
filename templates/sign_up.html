@@ -4,7 +4,7 @@
 <head>
     <!-- Favicon-->
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png' )}}">
-    <title>faceit :: Login</title>
+    <title>faceit :: Sign up</title>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.css') }}">
 
@@ -94,7 +94,8 @@
             </form>  
         </div>
     </div>
-
+    <!-- bounded image div 
+    <div id="bounded"></div>-->
     <script>
 
         let v = document.getElementById("myVideo");
@@ -110,10 +111,20 @@
             let xhr = new XMLHttpRequest();
             xhr.open('POST', 'http://localhost:5000/predict', true);
             xhr.onload = function () {
-                if (this.status === 200)
+                if (this.status === 200){
+                    var data = JSON.parse(this.responseText);
+
                     console.log(this.response);
-                else
+                    console.log('Printing json')
+                    console.log(data['face_present']);
+                    console.log(data["identity"]);
+                    console.log(data['registered']);
+                    console.log(data['min_dist']);
+
+                }
+                else{
                     console.error(xhr);
+                }
             };
             xhr.send(formdata);
         }
