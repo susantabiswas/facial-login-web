@@ -98,24 +98,13 @@
                     <label for="password">Password</label>
                     <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" required>
                 </div>
-                <input type="submit" class="btn btn-primary" id="submit" value="submit">
+                <input type="submit" class="btn btn-primary" id="submit" onclick="sendForm();" value="submit">
             </form>
         </div>
-        
-
     </div>
     
 
     <script>
-        var name = '';
-        /* $(document).ready(function(){ 
-            $('#submit').click(function(){
-            //store the user's entry in a variable
-            name = $('#exampleInputEmail1').val();
-            sendImagefromCanvas();
-            });
-        }); */
-           
         let v = document.getElementById("myVideo");
 
         //create a canvas to grab an image for upload
@@ -124,13 +113,8 @@
 
         //Add file blob to a form and post
         function postFile(file) {
-            
-            name = $('#exampleInputEmail1').val();
-            //var formElement = document.querySelector("login-detail");
-            //let formdata = new FormData(formElement);
-            let formdata = new FormData(formElement);
+            let formdata = new FormData();
             formdata.append("image", file);
-            
             
             let xhr = new XMLHttpRequest();
             xhr.open('POST', 'http://localhost:5000/predict', true);
@@ -139,11 +123,11 @@
                     var data = JSON.parse(this.responseText);
 
                     console.log(this.response);
-                    console.log('Printing json')
+                    /* console.log('Printing json')
                     console.log(data['face_present']);
                     console.log(data["identity"]);
                     console.log(data['registered']);
-                    console.log(data['min_dist']);
+                    console.log(data['min_dist']); */
 
                 }
                 else {
@@ -155,22 +139,24 @@
 
 
         //Add file blob to a form and post
-        function sendForm(file) {
-            name = $('#exampleInputEmail1').val();
-            //var formElement = document.querySelector("login-detail");
-            //let formdata = new FormData(formElement);
+        function sendForm() {
+            email = document.getElementById("exampleInputEmail1").value
+            pass = document.getElementById("exampleInputPassword1").value
+            
             let formdata = new FormData();
-            formdata.append("form", name);
+            formdata.append("email", email);
+            formdata.append("pass", pass);
 
             let xhr = new XMLHttpRequest();
             xhr.open('POST', 'http://localhost:5000/test', true);
             xhr.onload = function () {
                 if (this.status === 200) {
                     var data = JSON.parse(this.responseText);
-                    console.log('Inside form func')
+                    console.log("Sucess form");
                     console.log(this.response);
                }
                 else {
+                    console.log("No Sucess form");
                     console.error(xhr);
                 }
             };
@@ -194,7 +180,7 @@
         //Take a picture on click
         v.onclick = function () {
             console.log('clicked Cam');
-            //sendImagefromCanvas();
+            sendImagefromCanvas();
             sendForm();
         };
   
