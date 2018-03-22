@@ -139,6 +139,10 @@ def login():
 def sign_up():
     return flask.render_template("sign_up.html")
 
+@app.route('/dashboard')
+def dashboard():
+    return flask.render_template('dashboard.html')
+
 
 # for verifying user
 @app.route("/authenticate_user", methods=["POST"])
@@ -187,8 +191,8 @@ def add_user():
     return flask.jsonify(data)
 
 # check user using password
-@app.route("/test", methods=["POST"])
-def test():
+@app.route("/password_auth", methods=["POST"])
+def password_auth():
     # this will contain the
     data = {"success": False}
 
@@ -269,7 +273,7 @@ def predict():
             
             # indicate that the request was a success
             data["success"] = True
-    
+           
     # return the data dictionary as a JSON response
     return flask.jsonify(data)
 
@@ -283,4 +287,4 @@ if __name__ == "__main__":
     print('Model loaded..............')
     ini_user_database()
     print('Database loaded...........')
-    app.run(host='localhost', port=5000)
+    app.run(host='0.0.0.0', port=5000)
