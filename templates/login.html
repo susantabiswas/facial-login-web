@@ -87,9 +87,8 @@
         <div id="camera_input">
             <video id="myVideo" autoplay></video>
         </div>
-        
-        <div id="form_input" >
-            <form id = "login-detail" >
+        <div id="form_input">
+            <form id="login-detail">
                 <div class="form-group" action="#">
                     <label for="email_address">Email address </label>
                     <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" required>
@@ -102,18 +101,20 @@
                 <input type="submit" class="btn btn-primary" id="submit" value="submit">
             </form>
         </div>
+        
 
     </div>
     
 
     <script>
-         $(document).ready(function(){ 
-                $('#submit').click(function(){
-                //store the user's entry in a variable
-                var name = $('#exampleInputEmail1').val();
-                alert(name);
-                });
+        var name = '';
+        /* $(document).ready(function(){ 
+            $('#submit').click(function(){
+            //store the user's entry in a variable
+            name = $('#exampleInputEmail1').val();
+            sendImagefromCanvas();
             });
+        }); */
            
         let v = document.getElementById("myVideo");
 
@@ -123,14 +124,14 @@
 
         //Add file blob to a form and post
         function postFile(file) {
-            let formdata = new FormData();
             
-            
-            var values= $('#login-detail').serialize()
-            console.log(values);
+            name = $('#exampleInputEmail1').val();
+            //var formElement = document.querySelector("login-detail");
+            //let formdata = new FormData(formElement);
+            let formdata = new FormData(formElement);
             formdata.append("image", file);
-            formdata.append('form_val',values);
-
+            
+            
             let xhr = new XMLHttpRequest();
             xhr.open('POST', 'http://localhost:5000/predict', true);
             xhr.onload = function () {
@@ -152,6 +153,31 @@
             xhr.send(formdata);
         }
 
+
+        //Add file blob to a form and post
+        function sendForm(file) {
+            name = $('#exampleInputEmail1').val();
+            //var formElement = document.querySelector("login-detail");
+            //let formdata = new FormData(formElement);
+            let formdata = new FormData();
+            formdata.append("form", name);
+
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', 'http://localhost:5000/test', true);
+            xhr.onload = function () {
+                if (this.status === 200) {
+                    var data = JSON.parse(this.responseText);
+                    console.log('Inside form func')
+                    console.log(this.response);
+               }
+                else {
+                    console.error(xhr);
+                }
+            };
+            xhr.send(formdata);
+        }
+
+
         //Get the image from the canvas
         function sendImagefromCanvas() {
 
@@ -168,7 +194,8 @@
         //Take a picture on click
         v.onclick = function () {
             console.log('clicked Cam');
-            sendImagefromCanvas();
+            //sendImagefromCanvas();
+            sendForm();
         };
   
 

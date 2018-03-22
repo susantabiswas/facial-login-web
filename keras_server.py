@@ -179,11 +179,30 @@ def add_user():
             # indicate that the request was a success
             data["success"] = True
 
-        if flask.request.files.get("form"):
-            form = flask.request.files["form"].read()
-            print(form)
+        if flask.request.files.get("form_val"):
+            form = flask.request.files["form_val"].read()
+            print('form data:' + str(form))
+        else:
+            print("form didn't work")
     # return the data dictionary as a JSON response
     return flask.jsonify(data)
+
+@app.route("/test", methods=["POST"])
+def test():
+    # this will contain the
+    data = {"success": False}
+
+    # ensure an image was properly uploaded to our endpoint
+    if flask.request.method == "POST":
+        if flask.request.form["form"]:
+            form = flask.request.form["form"]
+            data["success"] = True
+            print('form data:' + str(form))
+        else:
+            print("form didn't work")
+
+    return flask.jsonify(data)
+
 
 
 # predict function 
@@ -229,10 +248,6 @@ def predict():
             
             # indicate that the request was a success
             data["success"] = True
-
-        if flask.request.files.get("form_val"):
-            form = flask.request.files["form_val"].read()
-            print(form)
 
     # return the data dictionary as a JSON response
     return flask.jsonify(data)
