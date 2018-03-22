@@ -194,13 +194,10 @@ def test():
 
     # ensure an image was properly uploaded to our endpoint
     if flask.request.method == "POST":
-        if flask.request.form["form"]:
-            form = flask.request.form["form"]
-            data["success"] = True
-            print('form data:' + str(form))
-        else:
-            print("form didn't work")
-
+        email = flask.request.form["email"]
+        password = flask.request.form["pass"]
+        data["success"] = True
+        print('form data:' + str(email) +', ' + str(password))
     return flask.jsonify(data)
 
 
@@ -248,7 +245,7 @@ def predict():
             
             # indicate that the request was a success
             data["success"] = True
-
+    
     # return the data dictionary as a JSON response
     return flask.jsonify(data)
 
