@@ -6,6 +6,7 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png' )}}">
     <title>faceit :: Sign up</title>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.css') }}">
 </head>
 <style>
     /* mirror the image */
@@ -18,9 +19,37 @@
         /*for Chrome & Opera (& Safari) */
     }
 </style>
+<style type ="text/css">
+#banner {
+            height: 40%;
+            width: 105%;
+            background-color: black;
 
+        }
+
+#banner_tag {
+    padding: 10px;
+    position: relative;
+    color: white;
+    margin-left: 35%;
+}
+
+#myVideo{
+    position: relative;
+    border: 2px solid black;
+    width: 30% ;
+    height: 40%;
+}
+
+</style>
 <body>
-    <video id="myVideo" width=60% height="40%" autoplay></video>
+    <div id="banner" class="row fullscreen">
+        <h2 id="banner_tag">Welcome to the Future </h2>
+    </div>
+            
+    <div id ="face-input">
+        <video id="myVideo"  autoplay></video>
+    </div>
     <button id="button" style="vertical-align:middle">
         <span>Face log in</span>
     </button>
