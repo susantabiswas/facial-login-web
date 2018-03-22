@@ -103,22 +103,26 @@ def ini_user_database():
 # for checking if the given input face is of a registered user or not
 def face_recognition(encoding, database, model, threshold=0.6):
     min_dist = 99999
+    # keeps track of user authentication status
+    authenticate = False
     # loop over all the recorded encodings in database
-    for name in database:
+    for email in database.keys():
         # find the similarity between the input encodings and claimed person's encodings using L2 norm
-        dist = np.linalg.norm(np.subtract(database[name], encoding))
+        dist = np.linalg.norm(np.subtract(database[email]['encoding'], encoding))
         # check if minimum distance or not
         if dist < min_dist:
             min_dist = dist
-            identity = name
+            identity = email
 
     if min_dist > threshold:
         print("User not in the database.")
         identity = 'Unknown Person'
+        authenticate = False
     else:
         print("Hi! " + str(identity) + ", L2 distance: " + str(min_dist))
+        authenticate = True
 
-    return min_dist, identity
+    return min_dist, identity, authenticate
 
 # index page
 @app.route('/')
@@ -179,14 +183,10 @@ def add_user():
             # indicate that the request was a success
             data["success"] = True
 
-        if flask.request.files.get("form_val"):
-            form = flask.request.files["form_val"].read()
-            print('form data:' + str(form))
-        else:
-            print("form didn't work")
     # return the data dictionary as a JSON response
     return flask.jsonify(data)
 
+# check user using password
 @app.route("/test", methods=["POST"])
 def test():
     # this will contain the
@@ -196,8 +196,26 @@ def test():
     if flask.request.method == "POST":
         email = flask.request.form["email"]
         password = flask.request.form["pass"]
+
+        # check if the user email id is present in db or not
+        if email in user_db.keys():
+            data['registered'] = True
+            # check if the associated password matches or not
+            if user_db[email]['password'] == password:
+                data['pass_corr'] = True
+                data['authenticate'] = True
+            else:
+                data['pass_corr'] = False
+                data['authenticate'] = False
+        # when the user email id is not in db
+        else:
+            data['registered'] = False
+            data['pass_corr'] = False
+            data['authenticate'] = False
+
+
         data["success"] = True
-        print('form data:' + str(email) +', ' + str(password))
+        print('Form Email:' + str(email) +', Password:' + str(password) + 'Authentication: ' + str(data['authenticate']))
     return flask.jsonify(data)
 
 
@@ -222,25 +240,31 @@ def predict():
             # CHECK FOR FACE IN THE IMAGE
             valid_face = False
             valid_face = face_present('saved_image/new.jpg')
+
             # do facial recognition only when there is a face inside the frame
             if valid_face:
                 # find image encoding and see if the image is of a registered user or not
                 encoding = img_to_encoding('saved_image/new.jpg', model)
-                min_dist, identity = face_recognition(
-                    encoding, user_db, model, threshold=0.7)
+                min_dist, identity, authenticate = face_recognition(
+                                                    encoding, user_db, model, threshold=0.7)
                 
                 # save the output for sending as json
                 data["min_dist"] = str(min_dist)
-                data['identity'] = identity
+                data['email'] = identity
+                if identity != 'Unknown Person':
+                    data['name'] = user_db[identity]['name']
+                else:
+                    data['name'] = 'Unknown Person'
                 data['face_present'] = True
-                data['registered'] = True
+                data['authenticate'] = authenticate
 
             else:
                 # save the output for sending as json
                 data["min_dist"] = 'NaN'
                 data['identity'] = 'NaN'
+                data['name'] = 'NaN'
                 data['face_present'] = False
-                data['registered'] = False
+                data['authenticate'] = False
                 print('No subject detected !')
             
             # indicate that the request was a success
@@ -248,6 +272,8 @@ def predict():
     
     # return the data dictionary as a JSON response
     return flask.jsonify(data)
+
+
 
 # first load the model and then start the server
 if __name__ == "__main__":
