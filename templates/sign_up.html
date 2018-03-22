@@ -6,6 +6,29 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png' )}}">
     <title>faceit :: Sign up</title>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.css') }}">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,400,300,500,600,700" rel="stylesheet"> 
+        <!--
+        CSS
+        ============================================= -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/linearicons.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/font-awesome.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/owl.carousel.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/main.css') }}">
+
+        <!-- Stylesheets /-->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css_team/style.css') }}" />
+        <!-- Main stylesheet /-->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css_team/bootstrap.css') }}">
+        <!-- Grid framework /-->
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800' rel='stylesheet' type='text/css'>
+        <!-- Open Sans /-->
+        <link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700' rel='stylesheet' type='text/css'>
+        <!-- PT Sans Narrow /-->
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+        <!-- Font Awesome /-->
+
 </head>
 <style>
     /* mirror the image */
@@ -18,13 +41,85 @@
         /*for Chrome & Opera (& Safari) */
     }
 </style>
+<style type ="text/css">
+#banner {
+            height: 40%;
+            width: 105%;
+            background-color: black;
 
+        }
+
+#banner_tag {
+    padding: 10px;
+    position: relative;
+    color: white;
+    margin-left: 35%;
+}
+
+#myVideo{
+    position: relative;
+    border: 2px solid black;
+    width: 30% ;
+    height: 40%;
+}
+#camera-input{
+    position: relative;
+    margin-left:30%;
+    margin-top:5%;
+    margin-bottom:10%;
+    padding: 3%;
+    width:100%;
+    height: 80%;
+}
+
+.footer {
+			height:20%;
+			width : 100%;
+			background-color:black;
+}
+.footer-align{
+			padding:20px;
+}
+.footer-social{
+    position: relative;
+    margin-top:0%;
+    margin-top:2%;
+    margin-left:4%;
+    width: 50%;
+}
+</style>
 <body>
-    <video id="myVideo" width=60% height="40%" autoplay></video>
-    <button id="button" style="vertical-align:middle">
-        <span>Face log in</span>
-    </button>
-
+    <div id="banner" class="row fullscreen">
+        <h2 id="banner_tag">Welcome to the Future </h2>
+    </div>
+    <div id ="camera-input">        
+        <div id ="face-input">
+            <video id="myVideo"  autoplay></video>
+        </div>
+        <button id="button" style="vertical-align:middle">
+            <span>Face log in</span>
+        </button>
+        </div>
+        <footer class="footer" id="contact-us">
+            <div class="footer-align">
+                <h2 style="color:white;position:absolute; margin-left:40%;">Contact Us</h2>
+                <br/>
+                <div class="footer-social">
+                    <a href="#">
+                        <i class="fa fa-facebook"></i>
+                    </a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#">
+                        <i class="fa fa-twitter"></i>
+                    </a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#">
+                        <i class="fa fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </footer>
+    
     <script>
 
         let v = document.getElementById("myVideo");
