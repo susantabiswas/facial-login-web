@@ -153,13 +153,14 @@
             formdata.append("pass", pass);
 
             let xhr = new XMLHttpRequest();
-            xhr.open('POST', 'http://localhost:5000/test', true);
+            xhr.open('POST', 'http://localhost:5000/password_auth', true);
             xhr.onload = function () {
                 if (this.status === 200) {
                     var data = JSON.parse(this.responseText);
                     console.log(this.response);
                     if (data['authenticate'] == true) {
                         alert('User authenticated');
+                        window.location.href = "{{ url_for('dashboard')}}";
                     }
                     else {
                         alert('User not authenticated');
