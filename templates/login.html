@@ -129,9 +129,11 @@
                     console.log(this.response);
                     if (data['authenticate'] == true) {
                         alert('User authenticated');
+                        document.getElementById("login-detail").reset();
                     }
                     else {
                         alert('User not authenticated');
+                        document.getElementById("login-detail").reset();
                     }
                 }
                 else {
@@ -196,6 +198,7 @@
         //Check user using password
         b.onclick = function () {
             console.log('clicked button');
+            document.getElementById("login-detail").reset();
             sendFormdata();
         };
 
