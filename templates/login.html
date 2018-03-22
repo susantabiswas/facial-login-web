@@ -82,7 +82,7 @@
     <div id="banner" class="row fullscreen">
         <h2 id="banner_tag">Welcome to the Future </h2>
     </div>
-
+    
     <div id="input">
         <div id="camera_input">
             <video id="myVideo" autoplay></video>
@@ -97,16 +97,20 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" required>
-                </div>
-                <input type="submit" class="btn btn-primary" id="submit" onclick="sendForm();" value="submit">
+                </div> 
+                <!-- <input type="submit" class="btn btn-primary" id="submit" onclick="sendFormdata();" value="submit"> -->
+                
             </form>
         </div>
     </div>
-    
+    <button id="button" style="vertical-align:middle">
+        <span>Face log in</span>
+    </button>
 
     <script>
         let v = document.getElementById("myVideo");
-
+        let b = document.getElementById("button");
+        
         //create a canvas to grab an image for upload
         let imageCanvas = document.createElement('canvas');
         let imageCtx = imageCanvas.getContext("2d");
@@ -123,12 +127,12 @@
                     var data = JSON.parse(this.responseText);
 
                     console.log(this.response);
-                    /* console.log('Printing json')
-                    console.log(data['face_present']);
-                    console.log(data["identity"]);
-                    console.log(data['registered']);
-                    console.log(data['min_dist']); */
-
+                    if (data['authenticate'] == true) {
+                        alert('User authenticated');
+                    }
+                    else {
+                        alert('User not authenticated');
+                    }
                 }
                 else {
                     console.error(xhr);
@@ -139,7 +143,8 @@
 
 
         //Add form data and post
-        function sendForm() {
+        function sendFormdata() {
+            // get form data
             email = document.getElementById("exampleInputEmail1").value
             pass = document.getElementById("exampleInputPassword1").value
             
@@ -152,11 +157,16 @@
             xhr.onload = function () {
                 if (this.status === 200) {
                     var data = JSON.parse(this.responseText);
-                    console.log("Sucess form");
                     console.log(this.response);
+                    if (data['authenticate'] == true) {
+                        alert('User authenticated');
+                    }
+                    else {
+                        alert('User not authenticated');
+                    }
+                    
                }
                 else {
-                    console.log("No Sucess form");
                     console.error(xhr);
                 }
             };
@@ -177,13 +187,17 @@
             imageCanvas.toBlob(postFile, 'image/jpeg');
         }
 
-        //Take a picture on click
+        //Check user using picture
         v.onclick = function () {
-            console.log('clicked Cam');
+            console.log('clicked camera');
             sendImagefromCanvas();
-            sendForm();
         };
-  
+        
+        //Check user using password
+        b.onclick = function () {
+            console.log('clicked button');
+            sendFormdata();
+        };
 
         window.onload = function () {
 
