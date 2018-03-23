@@ -1,6 +1,9 @@
-<!DOCTYPE html>
-<html>
+{% block body %}
+{% if session['logged_in'] %}
+<p>You're logged in already!</p>
+{% else %}
 
+<html>
 <head>
     <!-- Favicon-->
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png' )}}">
@@ -124,26 +127,26 @@
     <div id="input">
         <div id="camera_input">
             <video id="myVideo" autoplay></video>
+            <button id="button" style="vertical-align:middle">
+                <span>Face log in</span>
+            </button>
         </div>
         <div id="form_input">
-            <form id="login-detail">
-                <div class="form-group" action="#">
+            <form id="login-detail" action="/authenticate_user" method="POST">
+                <div class="form-group" >
                     <label for="email_address">Email address </label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" required>
+                    <input type="email" class="form-control" name ="exampleInputEmail1" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" required>
                     <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" required>
+                    <input type="password" class="form-control" name = "exampleInputPassword1" id="exampleInputPassword1" placeholder="Password" required>
                 </div> 
-                <!-- <input type="submit" class="btn btn-primary" id="submit" onclick="sendFormdata();" value="submit"> -->
-                
+                <input type="submit" value="Log in" >
             </form>
         </div>
     </div>
-    <button id="button" style="vertical-align:middle">
-        <span>Face log in</span>
-    </button>
+    
     <footer class="footer" id="contact-us">
             <div class="footer-align">
                 <h2 style="color:white;position:absolute; margin-left:40%;">Contact Us</h2>
@@ -170,7 +173,7 @@
         //create a canvas to grab an image for upload
         let imageCanvas = document.createElement('canvas');
         let imageCtx = imageCanvas.getContext("2d");
-
+        
         //Add file blob to a form and post
         function postFile(file) {
             let formdata = new FormData();
@@ -184,13 +187,16 @@
 
                     console.log(this.response);
                     if (data['authenticate'] == true) {
-                        alert('User authenticated');
-                        document.getElementById("login-detail").reset();
+                        alert('User authenticated ! Welcome ' + data['name']);
+                        window.location.href = "{{ url_for('dashboard')}}";
+                    }
+                    else if(data['face_present'] == false){
+                        alert('No face detected in frame!');
                     }
                     else {
-                        alert('User not authenticated');
-                        document.getElementById("login-detail").reset();
-                    }
+                        alert('Unknown user !');
+                        window.location.href = "{{ url_for('login')}}";
+                    } 
                 }
                 else {
                     console.error(xhr);
@@ -211,16 +217,18 @@
             formdata.append("pass", pass);
 
             let xhr = new XMLHttpRequest();
-            xhr.open('POST', 'http://localhost:5000/test', true);
+            xhr.open('POST', 'http://localhost:5000/password_auth', true);
             xhr.onload = function () {
                 if (this.status === 200) {
                     var data = JSON.parse(this.responseText);
                     console.log(this.response);
                     if (data['authenticate'] == true) {
                         alert('User authenticated');
+                        window.location.href = "{{ url_for('dashboard')}}";
                     }
                     else {
                         alert('User not authenticated');
+                        window.location.href = "{{ url_for('login')}}";
                     }
                     
                }
@@ -231,7 +239,7 @@
             xhr.send(formdata);
         }
 
-
+        
         //Get the image from the canvas
         function sendImagefromCanvas() {
 
@@ -254,8 +262,8 @@
         //Check user using password
         b.onclick = function () {
             console.log('clicked button');
-            document.getElementById("login-detail").reset();
-            sendFormdata();
+            //sendFormdata();
+            sendImagefromCanvas();
         };
 
         window.onload = function () {
@@ -273,5 +281,7 @@
 
     </script>
 </body>
-
 </html>
+
+{% endif %}
+{% endblock %}
