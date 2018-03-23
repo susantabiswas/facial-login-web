@@ -86,11 +86,13 @@ def face_present(image_path):
         cv2.imwrite('static/saved_images/bounded.jpg', img)
     return face_present
 
+
 # for loading the facenet trained model 
 def load_FRmodel():
     global model
     model = load_model('models/model.h5', custom_objects={'triplet_loss': triplet_loss})
     #model.summary()
+
 
 # load the saved user database
 def ini_user_database():
@@ -132,6 +134,28 @@ def face_recognition(encoding, database, model, threshold=0.6):
     return min_dist, identity, authenticate
 
 
+
+# for adding user face
+def add_face():
+    data = {"face_present": False}
+    encoding = None
+    # CHECK FOR FACE IN THE IMAGE
+    valid_face = False
+    valid_face = face_present('saved_image/new.jpg')
+    # add user only if there is a face inside the picture
+    if valid_face:
+        # create image encoding 
+        encoding = img_to_encoding('saved_image/new.jpg', model)
+        # save the output for sending as json
+        data['face_present'] = True
+    else:
+        # save the output for sending as json
+        data['face_present'] = False
+        print('No subject detected !')
+    
+    return data, encoding
+
+
 #dashboard page
 @app.route('/dashboard')
 def dashboard():
@@ -146,10 +170,12 @@ def index():
     else:
         return dashboard()
 
+
 # login page
 @app.route('/login')
 def login():
     return flask.render_template("login.html")
+
 
 # for verifying user
 @app.route('/authenticate_user', methods=["POST"])
@@ -169,6 +195,7 @@ def authenticate_user():
         flash('wrong password!')
     return login()
 
+
 #logout page
 @app.route("/logout", methods=['POST'])
 def logout():
@@ -176,10 +203,12 @@ def logout():
     session['logged_in'] = False
     return index()
 
+
 # Sign up page display
 @app.route('/sign_up')
 def sign_up():
     return flask.render_template("sign_up.html")
+
 
 # to add user through the sign up from
 @app.route('/signup_user', methods=["POST"])
@@ -247,128 +276,7 @@ def signup_user():
     #return sign_up()
     return flask.jsonify(user_status)
    
-   
-'''
-# to add user through the sign up from
-@app.route('/signup_user', methods=["POST"])
-def signup_user():
-    
-    
-    #declaring the engine
-    engine = create_engine('sqlite:///tutorial.db', echo=True)
 
-    # getting the email and password from the user
-    POST_USERNAME = str(request.form['exampleInputEmail1'])
-    POST_PASSWORD = str(request.form['exampleInputPassword1'])
-    name = str(request.form['name'])
-    user_status = {'registration': False, 'face_present': False}
-    
-    # for checking if complete user data was sent or not
-    complete_data = True
-    # whether user registration was successful or not
-    user_status = {'registration': False, 'face_present':False}
-    
-    # ensure an image was properly uploaded to our endpoint
-    if flask.request.method == "POST":
-        # add new user's face
-        if flask.request.files.get("image"):
-            # read the image in PIL format
-            image = flask.request.files["image"].read()
-            image = np.array(Image.open(io.BytesIO(image)))
-
-            # save the image on server side
-            cv2.imwrite('saved_image/new.jpg',
-                        cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
-            # check if any face is present or not in the picture
-            data, encoding = add_face()
-            # set complete data as true
-            complete_data = data['face_present']
-            # set face detected as True
-            user_status['face_present'] = True
-        # if no image was sent            
-        else:
-            complete_data = False
-            user_status['face_present'] = False
-
-        # only create a new session if complete user details is present
-        if complete_data:
-            # create a new session
-            Session = sessionmaker(bind=engine)
-            s = Session()
-            # add data to user_db dict
-            user_db[POST_USERNAME]['encoding'] = encoding
-            user_db[POST_USERNAME]['name'] = name
-
-            # save the user_db dict
-            with open('database/user_dict.pickle', 'wb') as handle:
-                    pickle.dump(user_db, handle, protocol=pickle.HIGHEST_PROTOCOL)
-            print('User ' + name + ' added successfully')
-
-            # adding the user to data base
-            user = User(POST_USERNAME,POST_PASSWORD)
-            s.add(user)
-            s.commit()
-            
-            # set registration status as True
-            user_status['registration'] = True
-            #logging in the user
-            session['logged_in'] = True
-            
-    return flask.jsonify(user_status)'''
-    
-
-# for adding user face
-def add_face():
-    data = {"face_present": False}
-    encoding = None
-    # CHECK FOR FACE IN THE IMAGE
-    valid_face = False
-    valid_face = face_present('saved_image/new.jpg')
-    # add user only if there is a face inside the picture
-    if valid_face:
-        # create image encoding 
-        encoding = img_to_encoding('saved_image/new.jpg', model)
-        # save the output for sending as json
-        data['face_present'] = True
-    else:
-        # save the output for sending as json
-        data['face_present'] = False
-        print('No subject detected !')
-    
-    return data, encoding
-
-# check user using password
-@app.route("/password_auth", methods=["POST"])
-def password_auth():
-    # this will contain the
-    data = {"success": False}
-
-    # ensure an image was properly uploaded to our endpoint
-    if flask.request.method == "POST":
-        email = flask.request.form["email"]
-        password = flask.request.form["pass"]
-
-        # check if the user email id is present in db or not
-        if email in user_db.keys():
-            data['registered'] = True
-            # check if the associated password matches or not
-            if user_db[email]['password'] == password:
-                data['pass_corr'] = True
-                data['authenticate'] = True
-            else:
-                data['pass_corr'] = False
-                data['authenticate'] = False
-        # when the user email id is not in db
-        else:
-            data['registered'] = False
-            data['pass_corr'] = False
-            data['authenticate'] = False
-
-
-        data["success"] = True
-        print('Form Email:' + str(email) +', Password:' + str(password) + 'Authentication: ' + str(data['authenticate']))
-    return flask.jsonify(data)
-    
 
 # predict function 
 @app.route("/predict", methods=["POST"])
