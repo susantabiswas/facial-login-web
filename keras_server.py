@@ -8,11 +8,16 @@
 #	python simple_request.py
 
 # import the necessary packages
+
 import keras 
 from keras import *
 from keras.models import load_model
 import numpy as np
 import tensorflow as tf
+import os
+from sqlalchemy.orm import sessionmaker
+from tabledef import *
+engine = create_engine('sqlite:///tutorial.db', echo=True)
 
 import pickle
 import cv2
@@ -21,19 +26,21 @@ from utility import img_to_encoding, resize_img
 from PIL import Image
 import flask
 from flask import request, url_for, Response
+from flask import flash, redirect, render_template, request, session, abort
 import requests
 import io
 
 # initialize the Flask application and other variables
 app = flask.Flask(__name__)
+app.secret_key = "somethingsecret"
+
 model = None
 user_db = None
 IMAGE_SAVE_PATH = './images'
 
 
 # for detecting the face boundary
-face_cascade = cv2.CascadeClassifier(
-        r'haarcascades/haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_default.xml')
 
 # custom loss function for model
 def triplet_loss(y_true, y_pred, alpha = 0.2):
@@ -124,34 +131,146 @@ def face_recognition(encoding, database, model, threshold=0.6):
 
     return min_dist, identity, authenticate
 
+
+#dashboard page
+@app.route('/dashboard')
+def dashboard():
+    return flask.render_template('dashboard.html')
+
+
 # index page
 @app.route('/')
 def index():
-    return flask.render_template("index.html") 
+    if not session.get('logged_in'):
+        return flask.render_template("index.html")
+    else:
+        return dashboard()
 
 # login page
 @app.route('/login')
 def login():
     return flask.render_template("login.html")
 
-# Sign up
+# for verifying user
+@app.route('/authenticate_user', methods=["POST"])
+def authenticate_user():
+    POST_USERNAME = str(request.form['exampleInputEmail1'])
+    POST_PASSWORD = str(request.form['exampleInputPassword1'])
+    #making a session
+    Session = sessionmaker(bind=engine)
+    s = Session()
+    query = s.query(User).filter(User.username.in_([POST_USERNAME]), User.password.in_([POST_PASSWORD]) )
+    result = query.first()
+    # if the user is logged in
+    if result:
+        session['logged_in'] = True
+        return dashboard()
+    else:
+        flash('wrong password!')
+    return login()
+
+#logout page
+@app.route("/logout", methods=['POST'])
+def logout():
+    # logging out the user
+    session['logged_in'] = False
+    return index()
+
+# Sign up page display
 @app.route('/sign_up')
 def sign_up():
     return flask.render_template("sign_up.html")
 
-
-# for verifying user
-@app.route("/authenticate_user", methods=["POST"])
-def authenticate_user():
-    pass
-
-# for regsitering a new user
-@app.route("/add_user", methods=["POST"])
-def add_user():
-    data = {"success":False}
+# to add user through the sign up from
+@app.route('/signup_user', methods=["POST"])
+def signup_user():
+    #declaring the engine
+    engine = create_engine('sqlite:///tutorial.db', echo=True)
+    
+    # whether user registration was successful or not
+    user_status = {'registration': False, 'face_present': False, 'duplicate':False}
 
     # ensure an image was properly uploaded to our endpoint
     if flask.request.method == "POST":
+        print('Inside post')
+        # getting the email and password from the user
+        POST_USERNAME = str(request.form['email'])
+        POST_PASSWORD = str(request.form['pass'])
+        NAME = str(request.form['name'])
+
+        if POST_USERNAME not in user_db.keys():
+            # add new user's face
+            if flask.request.files.get("image"):
+                print('Inside Image')
+                # read the image in PIL format
+                image = flask.request.files["image"].read()
+                image = np.array(Image.open(io.BytesIO(image)))
+                print('Image saved success')
+                # save the image on server side
+                cv2.imwrite('saved_image/new.jpg',
+                            cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+                # check if any face is present or not in the picture
+                data, encoding = add_face()
+                # set face detected as True
+                user_status['face_present'] = data['face_present']
+            # if no image was sent
+            else:
+                user_status['face_present'] = False
+
+            # only create a new session if complete user details is present
+            if data['face_present']:
+                # create a new session
+                Session = sessionmaker(bind=engine)
+                s = Session()
+                # add data to user_db dict
+                user_db[POST_USERNAME]['encoding'] = encoding
+                user_db[POST_USERNAME]['name'] = NAME
+
+                # save the user_db dict
+                with open('database/user_dict.pickle', 'wb') as handle:
+                    pickle.dump(user_db, handle,protocol=pickle.HIGHEST_PROTOCOL)
+                print('User ' + POST_USERNAME + ' added successfully')
+
+                # adding the user to data base
+                user = User(POST_USERNAME, POST_PASSWORD)
+                s.add(user)
+                s.commit()
+
+                # set registration status as True
+                user_status['registration'] = True
+                #logging in the user
+                session['logged_in'] = True
+                #return dashboard()
+        else:
+            user_status['duplicate'] = True
+    
+    #return sign_up()
+    return flask.jsonify(user_status)
+   
+   
+'''
+# to add user through the sign up from
+@app.route('/signup_user', methods=["POST"])
+def signup_user():
+    
+    
+    #declaring the engine
+    engine = create_engine('sqlite:///tutorial.db', echo=True)
+
+    # getting the email and password from the user
+    POST_USERNAME = str(request.form['exampleInputEmail1'])
+    POST_PASSWORD = str(request.form['exampleInputPassword1'])
+    name = str(request.form['name'])
+    user_status = {'registration': False, 'face_present': False}
+    
+    # for checking if complete user data was sent or not
+    complete_data = True
+    # whether user registration was successful or not
+    user_status = {'registration': False, 'face_present':False}
+    
+    # ensure an image was properly uploaded to our endpoint
+    if flask.request.method == "POST":
+        # add new user's face
         if flask.request.files.get("image"):
             # read the image in PIL format
             image = flask.request.files["image"].read()
@@ -160,35 +279,67 @@ def add_user():
             # save the image on server side
             cv2.imwrite('saved_image/new.jpg',
                         cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+            # check if any face is present or not in the picture
+            data, encoding = add_face()
+            # set complete data as true
+            complete_data = data['face_present']
+            # set face detected as True
+            user_status['face_present'] = True
+        # if no image was sent            
+        else:
+            complete_data = False
+            user_status['face_present'] = False
 
-            # CHECK FOR FACE IN THE IMAGE
-            valid_face = False
-            valid_face = face_present('saved_image/new.jpg')
-            # add user only if there is a face inside the picture
-            if valid_face:
-                # find image encoding 
-                encoding = img_to_encoding('saved_image/new.jpg', model)
-                print()
+        # only create a new session if complete user details is present
+        if complete_data:
+            # create a new session
+            Session = sessionmaker(bind=engine)
+            s = Session()
+            # add data to user_db dict
+            user_db[POST_USERNAME]['encoding'] = encoding
+            user_db[POST_USERNAME]['name'] = name
 
-                # save the output for sending as json
-                data['face_present'] = True
-                data['registered'] = True
+            # save the user_db dict
+            with open('database/user_dict.pickle', 'wb') as handle:
+                    pickle.dump(user_db, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            print('User ' + name + ' added successfully')
 
-            else:
-                # save the output for sending as json
-                data['face_present'] = False
-                data['registered'] = False
-                print('No subject detected !')
+            # adding the user to data base
+            user = User(POST_USERNAME,POST_PASSWORD)
+            s.add(user)
+            s.commit()
+            
+            # set registration status as True
+            user_status['registration'] = True
+            #logging in the user
+            session['logged_in'] = True
+            
+    return flask.jsonify(user_status)'''
+    
 
-            # indicate that the request was a success
-            data["success"] = True
-
-    # return the data dictionary as a JSON response
-    return flask.jsonify(data)
+# for adding user face
+def add_face():
+    data = {"face_present": False}
+    encoding = None
+    # CHECK FOR FACE IN THE IMAGE
+    valid_face = False
+    valid_face = face_present('saved_image/new.jpg')
+    # add user only if there is a face inside the picture
+    if valid_face:
+        # create image encoding 
+        encoding = img_to_encoding('saved_image/new.jpg', model)
+        # save the output for sending as json
+        data['face_present'] = True
+    else:
+        # save the output for sending as json
+        data['face_present'] = False
+        print('No subject detected !')
+    
+    return data, encoding
 
 # check user using password
-@app.route("/test", methods=["POST"])
-def test():
+@app.route("/password_auth", methods=["POST"])
+def password_auth():
     # this will contain the
     data = {"success": False}
 
@@ -217,15 +368,15 @@ def test():
         data["success"] = True
         print('Form Email:' + str(email) +', Password:' + str(password) + 'Authentication: ' + str(data['authenticate']))
     return flask.jsonify(data)
-
-
+    
 
 # predict function 
 @app.route("/predict", methods=["POST"])
 def predict():
     # this will contain the 
     data = {"success": False}
-
+    # for keeping track of authentication status
+    data['authenticate'] = False
     # ensure an image was properly uploaded to our endpoint
     if flask.request.method == "POST":
         if flask.request.files.get("image"):
@@ -246,7 +397,7 @@ def predict():
                 # find image encoding and see if the image is of a registered user or not
                 encoding = img_to_encoding('saved_image/new.jpg', model)
                 min_dist, identity, authenticate = face_recognition(
-                                                    encoding, user_db, model, threshold=0.7)
+                                                    encoding, user_db, model, threshold=0.9)
                 
                 # save the output for sending as json
                 data["min_dist"] = str(min_dist)
@@ -269,7 +420,16 @@ def predict():
             
             # indicate that the request was a success
             data["success"] = True
-    
+
+        # create a new session
+        Session = sessionmaker(bind=engine)
+        s = Session()
+        # check if the user is logged in
+        if data['authenticate']:
+            session['logged_in'] = True
+        else:
+            flash('Unknown Person!')
+
     # return the data dictionary as a JSON response
     return flask.jsonify(data)
 
@@ -277,10 +437,12 @@ def predict():
 
 # first load the model and then start the server
 if __name__ == "__main__":
+    
+
     print("** Starting Flask server.........Please wait until the server starts ")
     print('Loading the Neural Network......\n')
     load_FRmodel()
     print('Model loaded..............')
     ini_user_database()
     print('Database loaded...........')
-    app.run(host='localhost', port=5000)
+    app.run(host='0.0.0.0', port=5000)
