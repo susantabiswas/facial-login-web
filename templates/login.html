@@ -205,40 +205,6 @@
             xhr.send(formdata);
         }
 
-
-        //Add form data and post
-        function sendFormdata() {
-            // get form data
-            email = document.getElementById("exampleInputEmail1").value
-            pass = document.getElementById("exampleInputPassword1").value
-            
-            let formdata = new FormData();
-            formdata.append("email", email);
-            formdata.append("pass", pass);
-
-            let xhr = new XMLHttpRequest();
-            xhr.open('POST', 'http://localhost:5000/password_auth', true);
-            xhr.onload = function () {
-                if (this.status === 200) {
-                    var data = JSON.parse(this.responseText);
-                    console.log(this.response);
-                    if (data['authenticate'] == true) {
-                        alert('User authenticated');
-                        window.location.href = "{{ url_for('dashboard')}}";
-                    }
-                    else {
-                        alert('User not authenticated');
-                        window.location.href = "{{ url_for('login')}}";
-                    }
-                    
-               }
-                else {
-                    console.error(xhr);
-                }
-            };
-            xhr.send(formdata);
-        }
-
         
         //Get the image from the canvas
         function sendImagefromCanvas() {
@@ -262,7 +228,6 @@
         //Check user using password
         b.onclick = function () {
             console.log('clicked button');
-            //sendFormdata();
             sendImagefromCanvas();
         };
 
