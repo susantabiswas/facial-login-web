@@ -32,7 +32,7 @@ import io
 
 # initialize the Flask application and other variables
 app = flask.Flask(__name__)
-app.secret_key = "somethingsecret"
+app.secret_key = os.urandom()
 
 model = None
 user_db = None
