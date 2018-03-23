@@ -92,14 +92,37 @@
     <div id="banner" class="row fullscreen">
         <h2 id="banner_tag">Welcome to the Future </h2>
     </div>
-    <div id ="camera-input">        
-        <div id ="face-input">
-            <video id="myVideo"  autoplay></video>
+    
+    <div id="input">
+        <div id="form-input">
+            <!-- <form id="login-detail" action="/signup_user" method="POST"> -->
+            <form id="login-detail">
+                <div class="form-group" >
+                    <label for="email_address">Email address </label>
+                    <input type="email" class="form-control" name ="exampleInputEmail1" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" required>
+                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                </div>
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="Text" class="form-control" name="name" id="name" placeholder="Enter name" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" name = "exampleInputPassword1" id="exampleInputPassword1" placeholder="Password" required>
+                </div> 
+                
+            </form>
         </div>
-        <button id="button" style="vertical-align:middle">
-            <span>Face log in</span>
-        </button>
-        </div>
+        <div id ="camera-input">        
+                <div id ="face-input">
+                    <video id="myVideo"  autoplay></video>
+                </div>
+                <button id="button" style="vertical-align:middle">
+                    <span>Sign up</span>
+                </button>
+            </div>
+        
+    </div>
         <footer class="footer" id="contact-us">
             <div class="footer-align">
                 <h2 style="color:white;position:absolute; margin-left:40%;">Contact Us</h2>
@@ -130,21 +153,36 @@
 
         //Add file blob to a form and post
         function postFile(file) {
+            // get form data
+            email = document.getElementById("exampleInputEmail1").value
+            pass = document.getElementById("exampleInputPassword1").value
+            name = document.getElementById("name").value
+
             let formdata = new FormData();
             formdata.append("image", file);
+            formdata.append("email", email);
+            formdata.append("pass", pass);
+            formdata.append("name", name);
+
             let xhr = new XMLHttpRequest();
-            xhr.open('POST', 'http://localhost:5000/predict', true);
+            xhr.open('POST', 'http://localhost:5000/signup_user', true);
             xhr.onload = function () {
                 if (this.status === 200) {
                     var data = JSON.parse(this.responseText);
-
                     console.log(this.response);
-                    console.log(data['face_present']);
-                    console.log(data["identity"]);
-                    console.log(data['registered']);
-                    console.log(data['min_dist']);
-                    //document.getElementById("bounded").innerHTML = " <img style='position:absolute' height=50% width=50% src= \"{{ url_for('static', filename='saved_images/bounded.jpg') }}\" alt ='' />";
-
+                    if(data['duplicate'] == true){
+                        alert('User already registered !');
+                        resetFields();
+                        window.location.href = "{{ url_for('sign_up')}}";
+                    }
+                    else if(data["face_present"] == true ) {
+                        alert('User Registration Successful !');
+                        window.location.href = "{{ url_for('dashboard')}}";
+                    }
+                    else {
+                        alert('No face detected in the picture. Try again !');
+                        window.location.href = "{{ url_for('sign_up')}}";
+                    } 
                 }
                 else {
                     console.error(xhr);
@@ -152,8 +190,19 @@
             };
 
             xhr.send(formdata);
-
         }
+        
+        // for clearing the form fields
+        function resetFields(){
+            document.getElementById("exampleInputEmail1").value = "";
+            document.getElementById("exampleInputPassword1").value = "";
+            document.getElementById("name").value = "";
+        }
+
+        /* function addUser(){
+            console.log('form working .....');
+            sendImagefromCanvas();
+        } */
 
         //Get the image from the canvas
         function sendImagefromCanvas() {
@@ -179,6 +228,7 @@
             console.log('click');
             sendImagefromCanvas();
         };
+
         window.onload = function () {
 
             //Get camera video
