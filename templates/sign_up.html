@@ -13,7 +13,6 @@
         ============================================= -->
         <link rel="stylesheet" href="{{ url_for('static',filename='css/linearicons.css') }}">
         <link rel="stylesheet" href="{{ url_for('static',filename='css/font-awesome.min.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.css') }}">
         <link rel="stylesheet" href="{{ url_for('static',filename='css/owl.carousel.css') }}">
         <link rel="stylesheet" href="{{ url_for('static',filename='css/main.css') }}">
 
@@ -71,7 +70,16 @@
     width:100%;
     height: 80%;
 }
-
+#button{
+    position: relative;
+    margin-left: 10%;
+}
+#form-input{
+    position: relative;
+    width: 50%;
+    margin-left: 25%;
+    margin-top: 5%;
+}
 .footer {
 			height:20%;
 			width : 100%;
@@ -94,33 +102,30 @@
     </div>
     
     <div id="input">
-        <div id="form-input">
+        <div id="form-input" >
             <!-- <form id="login-detail" action="/signup_user" method="POST"> -->
-            <form id="login-detail">
+            <form id="login-detail" >
                 <div class="form-group" >
-                    <label for="email_address">Email address </label>
-                    <input type="email" class="form-control" name ="exampleInputEmail1" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" required>
+                    <label for="email_address" style="color:black; font-size:20pt;margin-bottom:10px;">Email address </label>
+                    <input type="email" class="form-control" name ="exampleInputEmail1" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" style="font-size:17pt; height:40px;" required>
                     <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
                 </div>
                 <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="Text" class="form-control" name="name" id="name" placeholder="Enter name" required>
+                    <label for="name" style="color:black; font-size:20pt;margin-bottom:10px;">Name</label>
+                    <input type="name" class="form-control" name="name" id="name" placeholder="Enter name" style="font-size:17pt; height:40px;" required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" class="form-control" name = "exampleInputPassword1" id="exampleInputPassword1" placeholder="Password" required>
+                    <label for="password" style="color:black; font-size:20pt;margin-bottom:10px;">Password</label>
+                    <input type="password" class="form-control" name = "exampleInputPassword1" id="exampleInputPassword1" placeholder="Password" style="font-size:17pt; height:40px;" required>
                 </div> 
-                
             </form>
         </div>
         <div id ="camera-input">        
                 <div id ="face-input">
                     <video id="myVideo"  autoplay></video>
                 </div>
-                <button id="button" style="vertical-align:middle">
-                    <span>Sign up</span>
-                </button>
-            </div>
+                <button id="button" class="btn btn-success" style="vertical-align:middle"> Sign up  </button>
+        </div>
         
     </div>
         <footer class="footer" id="contact-us">
