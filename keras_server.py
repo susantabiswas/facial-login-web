@@ -15,6 +15,7 @@ from keras.models import load_model
 import numpy as np
 import tensorflow as tf
 import os
+from collections import defaultdict
 from sqlalchemy.orm import sessionmaker
 from tabledef import *
 engine = create_engine('sqlite:///login_db.db', echo=True)
@@ -91,7 +92,7 @@ def face_present(image_path):
 def load_FRmodel():
     global model
     model = load_model('models/model.h5', custom_objects={'triplet_loss': triplet_loss})
-    #model.summary()
+    model.summary()
 
 
 # load the saved user database
@@ -104,7 +105,7 @@ def ini_user_database():
     else:
         # make a new one
         # we use a dict for keeping track of mapping of each person with his/her face encoding
-        user_db = {}
+        user_db = defaultdict(dict)
     return user_db
 
 
@@ -214,7 +215,7 @@ def sign_up():
 @app.route('/signup_user', methods=["POST"])
 def signup_user():
     #declaring the engine
-    engine = create_engine('sqlite:///tutorial.db', echo=True)
+    engine = create_engine('sqlite:///login_db.db', echo=True)
     
     # whether user registration was successful or not
     user_status = {'registration': False, 'face_present': False, 'duplicate':False}
