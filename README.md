@@ -4,7 +4,7 @@ It uses flask **server** for running the neural network model.
 Facial recognition is based on Facenet.
 
 Team members:
-**Susanta Biswas** and **Aditya Singh**
+**[Susanta Biswas](https://github.com/susantabiswas)** and **[Aditya Singh](https://github.com/adibyte95)**
 
 For running:
 1. run
