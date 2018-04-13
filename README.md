@@ -5,6 +5,7 @@ Facial recognition is based on Facenet.
 
 Team members:
 **Susanta Biswas** and **Aditya Singh**
+
 For running:
 1. run
 python keras_server.py
