@@ -1,7 +1,10 @@
 # Web based Facial Authentication system
 This is a web based facial log in/ Sign up website which uses Facial recognition for user authentication.
+
 It uses flask **server** for running the neural network model. 
-Facial recognition is based on Facenet.
+The model runs on the server side and accepts requests from clients.
+
+Facial recognition is based on Facenet model.
 
 Team members:
 **[Susanta Biswas](https://github.com/susantabiswas)** and **[Aditya Singh](https://github.com/adibyte95)**
@@ -12,6 +15,19 @@ python keras_server.py
 2. go to browser and type **localhost:5000** to access the site
 3. enjoy
 
+Some screenshots:
+<br>
+### Homepage
+![Homepage](/images/1.png)
+
+### Login page
+![Log in](/images/2.png)
+
+### Sign up page
+![Sign up](/images/3.png)
+
+### Successful login
+![Dashboard](images/4.png)
 
 #### References:
 - Code for Facenet model is based on the assignment from Convolutional Neural Networks Specialization by Deeplearning.ai on Coursera.<br>
